@@ -1,0 +1,215 @@
+.visualizer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  padding: var(--space-8);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-lg);
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.header {
+  text-align: center;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-bold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-2);
+}
+
+.titleIcon {
+  color: var(--accent-cyan);
+}
+
+.subtitle {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+/* ── Stack ── */
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.layer {
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--bg-primary);
+  transition: all var(--transition-normal);
+}
+
+.layer:hover {
+  border-color: var(--layer-color);
+  box-shadow: 0 0 15px -5px var(--layer-color);
+}
+
+.expanded {
+  border-color: var(--layer-color);
+  box-shadow: 0 5px 25px -10px var(--layer-color);
+  margin-bottom: var(--space-4);
+  margin-top: var(--space-2);
+}
+
+.layerHeader {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-4) var(--space-6);
+  background: transparent;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.layerHeader:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.layerInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.layerNumber {
+  font-family: var(--font-mono);
+  font-weight: var(--weight-bold);
+  color: var(--layer-color);
+  font-size: var(--text-sm);
+  width: 24px;
+}
+
+.iconBox {
+  color: var(--text-tertiary);
+}
+
+.layerName {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+  color: var(--text-primary);
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  color: var(--text-tertiary);
+}
+
+.dataUnit {
+  font-weight: var(--weight-bold);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 2px 8px;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-full);
+}
+
+/* ── Content ── */
+.content {
+  padding: var(--space-6);
+  padding-top: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding-top: var(--space-5);
+}
+
+.description {
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+  color: var(--text-secondary);
+}
+
+.protocolGrid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.protocolHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 10px;
+  font-weight: var(--weight-bold);
+  color: var(--layer-color);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.tag {
+  font-size: 11px;
+  font-weight: var(--weight-semibold);
+  font-family: var(--font-mono);
+  padding: 2px 8px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-primary);
+  color: var(--text-primary);
+  border-radius: var(--radius-sm);
+}
+
+.dataUnitInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+  color: var(--text-tertiary);
+  font-size: var(--text-sm);
+}
+
+.dataUnitInfo b {
+  color: var(--accent-cyan);
+}
+
+/* ── Footer ── */
+.footer {
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--border-primary);
+}
+
+.legend {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-8);
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--text-tertiary);
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+}
+
+@media (max-width: 640px) {
+  .layerName { font-size: var(--text-base); }
+  .headerRight { display: none; }
+}

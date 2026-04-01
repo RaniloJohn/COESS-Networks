@@ -1,0 +1,9 @@
+{
+  "id": "module-4",
+  "title": "VLSM Design",
+  "description": "Master Variable Length Subnet Masking to design efficient networks with zero waste.",
+  "icon": "Binary",
+  "orderIndex": 4,
+  "difficulty": "intermediate",
+  "totalXp": 80
+}

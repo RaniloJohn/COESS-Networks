@@ -1,0 +1,9 @@
+{
+  "id": "module-2",
+  "title": "The OSI Model",
+  "description": "Understand the 7 layers of networking, data encapsulation, and how information travels through a network stack.",
+  "icon": "Layers",
+  "orderIndex": 2,
+  "difficulty": "beginner",
+  "totalXp": 50
+}

@@ -1,0 +1,35 @@
+---
+id: "task-3-1"
+title: "How Subnetting Works"
+description: "Master the binary math behind subnet masks and CIDR notation."
+type: "calculator"
+xpReward: 30
+orderIndex: 0
+---
+
+# IPv4 Subnetting Basics
+
+Subnetting is the process of dividing a single large network into multiple smaller, manageable sub-networks (subnets). 
+
+### Why Subnet?
+- **Efficiency:** Prevents the waste of IP addresses.
+- **Security:** Isolates traffic between departments.
+- **Performance:** Reduces broadcast traffic.
+
+### The Math: Binary & Masks
+Every IP address is paired with a **Subnet Mask**. The mask tells the computer which part of the address belongs to the **Network** and which part belongs to the **Host**.
+
+- **Network Bits:** Identifies the specific subnet.
+- **Host Bits:** Identifies the specific device on that subnet.
+
+> [!TIP]
+> Use the calculator below to see how changing the **CIDR prefix** (like /24 vs /26) affects the number of usable hosts!
+
+<SubnetCalculator />
+
+---
+
+### CCNA Practice Formula
+To find the number of usable hosts, we use the formula:
+**$2^h - 2$**
+Where **h** is the number of host bits. We subtract 2 for the **Network Address** and the **Broadcast Address**.

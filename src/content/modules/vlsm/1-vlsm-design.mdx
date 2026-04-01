@@ -1,0 +1,33 @@
+---
+id: "task-4-1"
+title: "VLSM Design"
+description: "Master Variable Length Subnet Masking to design efficient networks with zero waste."
+type: "calculator"
+xpReward: 40
+orderIndex: 0
+---
+
+# Variable Length Subnet Masking (VLSM)
+
+**VLSM** is a more advanced subnetting technique that allows you to use different subnet masks within the same network address space. This is a critical skill for the **CCNA** exam and real-world network engineering.
+
+### Why Use VLSM?
+- **Prevent Intellectual Waste:** Allocates only the number of addresses needed for each department.
+- **Hierarchical Design:** Groups contiguous subnets for better routing summarization.
+- **Infinite Flexibility:** Allows for small /30 point-to-point links alongside large /24 campus LANs.
+
+> [!IMPORTANT]
+> When designing with VLSM, you MUST always address the **largest** department (most host bits) first.
+
+### VLSM Practice Tool
+Use the calculator below to design a network for three departments: **Engineering** (60 hosts), **Sales** (30 hosts), and **Marketing** (10 hosts).
+
+<VLSMCalculator />
+
+---
+
+### The VLSM Steps
+1. Sort your subnet requirements from **largest to smallest**.
+2. Allocate the first block starting at the network address.
+3. Start the next block at the very next available IP.
+4. Repeat until all requirements are met.

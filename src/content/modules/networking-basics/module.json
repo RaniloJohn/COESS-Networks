@@ -1,0 +1,9 @@
+{
+  "id": "module-1",
+  "title": "Networking Basics",
+  "description": "The fundamentals of how computer networks function, including types (LAN/WAN) and core hardware.",
+  "icon": "Globe",
+  "orderIndex": 1,
+  "difficulty": "beginner",
+  "totalXp": 40
+}

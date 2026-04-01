@@ -1,0 +1,9 @@
+{
+  "id": "module-3",
+  "title": "IP Addressing & Subnetting",
+  "description": "Learn the structure of IPv4, how to calculate subnets, and the math behind CIDR notation.",
+  "icon": "Calculator",
+  "orderIndex": 3,
+  "difficulty": "intermediate",
+  "totalXp": 80
+}

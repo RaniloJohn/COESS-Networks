@@ -1,0 +1,31 @@
+---
+id: "task-2-1"
+title: "The 7 Layers of OSI"
+description: "An interactive breakdown of how data travels from your screen to the wire."
+type: "visualizer"
+xpReward: 20
+orderIndex: 0
+---
+
+# The 7 Layers of OSI
+
+The **Open Systems Interconnection (OSI)** model is a conceptual framework used to understand how data moves through a network. It divides the complex process of networking into seven distinct layers.
+
+By breaking communication into layers, engineers can focus on one specific part of the network stack without worrying about the others. For example, the person designing a Wi-Fi card (Layer 1) doesn't need to know how a web browser (Layer 7) handles HTML.
+
+### Interactive Model
+Use the tool below to explore each layer. Click on a layer to see its **function**, **data unit**, and common **protocols**.
+
+<OSIModel />
+
+---
+
+### Host vs. Media Layers
+The OSI model is often split into two main groups:
+
+1. **Host Layers (7, 6, 5, 4)**: These are mostly implemented in software and focus on the end-user applications and how data is prepared for transmission.
+2. **Media Layers (3, 2, 1)**: These focus on how data is physically moved across cables, through routers, and between network interfaces.
+
+> [!IMPORTANT]
+> A common mnemonic to remember the layers in order (from Layer 7 down to Layer 1) is:
+> **A**ll **P**eople **S**eem **T**o **N**eed **D**ata **P**rocessing.
