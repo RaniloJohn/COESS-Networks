@@ -125,6 +125,19 @@ export function PropertiesPanel() {
                           className={styles.inputSmall}
                         />
                       </div>
+
+                      {(type === 'pc' || type === 'server') && (
+                        <div className={styles.propGroup}>
+                          <label style={{ fontSize: '10px' }}>Default Gateway</label>
+                          <input 
+                            type="text" 
+                            placeholder="e.g. 192.168.1.1"
+                            value={iface.defaultGateway || ''}
+                            onChange={(e) => handleInterfaceChange(idx, 'defaultGateway', e.target.value)}
+                            className={styles.inputSmall}
+                          />
+                        </div>
+                      )}
                     </>
                   )}
                 </div>

@@ -219,6 +219,14 @@ function executePCCommand(
     return handlePingCommand(tokens.slice(1), state, interfaces);
   }
 
+  if (cmd === 'ip' && tokens[1] === 'default-gateway') {
+    const gateway = tokens[2];
+    if (!gateway) return { output: 'Usage: ip default-gateway <ip>', newState: state };
+    const newIfaces = interfaces.map((i, idx) => idx === 0 ? { ...i, defaultGateway: gateway } : i);
+    updateNodeData({ interfaces: newIfaces });
+    return { output: '', newState: state };
+  }
+
   if (cmd === 'hostname') return { output: state.hostname, newState: state };
   if (cmd === 'cls' || cmd === 'clear') return { output: '\x1b[2J\x1b[H', newState: state };
 
@@ -289,6 +297,14 @@ function executeConfigMode(
       if (!id) return incompleteCommand(state);
       return { output: '', newState: { ...state, mode: 'config-router-ospf', currentRouterProtocol: `ospf ${id}` } };
     }
+  }
+
+  if (cmd === 'ip' && tokens[1] === 'default-gateway') {
+    const gateway = tokens[2];
+    if (!gateway) return incompleteCommand(state);
+    const newIfaces = nodeData.interfaces.map(i => ({ ...i, defaultGateway: gateway }));
+    updateNodeData({ interfaces: newIfaces });
+    return { output: '', newState: state };
   }
 
   if (cmd === 'exit' || cmd === 'end') return { output: '', newState: { ...state, mode: 'priv' } };
