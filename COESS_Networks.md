@@ -550,13 +550,12 @@ coess-networks/
 - Implement save/load topology to Supabase
 - Build topology data validation with Zod
 
-### Phase 5: Simulation Engine & CLI Integration (In Progress)
-- Build `network-simulator.ts` — adjacency graph, reachability, routing
-- Build `command-parser.ts` — parse CLI input into actions
-- Integrate xterm.js as `SimulatedTerminal` **within the Topology workspace**
-- Implement `ping`, `ipconfig`, `traceroute`, `hostname`, `help`, `clear`
-- Implement **Context Switching**: Clicking a device updates the terminal session
-- Write Module 5-6 lab content (to be performed directly in the sandbox)
+### Phase 5: Simulation Engine & CLI Integration (Completed - High Fidelity)
+- [x] **High-Fidelity Cabling**: Implemented dynamic Cisco-style cabling (Straight, Crossover, Serial) with automated interface negotiation.
+- [x] **Smart Interface Labels**: Added visual interface name markers (e.g., `fa0/0----fa0/1`) directly to network links.
+- [x] **IOS CLI Hardening**: Refactored command parser to support global `ping`, context-aware mode switching, and lateral interface jumping.
+- [x] **Hardware Accuracy**: Enforced L2/L3 hardware constraints in the Properties Panel; physical switch ports now correctly restrict IP assignment.
+- [x] **Topology Integrity**: Implemented robust cleanup logic; deleting a wire automatically resets the state of the associated physical ports.
 
 ### Phase 6: Polish & Launch (Days 31-35)
 - Landing page design (hero, features section, CTA)

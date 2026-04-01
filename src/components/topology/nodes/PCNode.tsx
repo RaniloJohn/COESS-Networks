@@ -13,14 +13,22 @@ interface PCNodeProps {
 export function PCNode({ data, selected }: PCNodeProps) {
   return (
     <div className={`${styles.nodeBase} ${styles.pc} ${selected ? styles.selected : ''}`}>
-      {/* Network Handle (Top) */}
-      <Handle
-        type="target"
-        position={Position.Top}
-        id="eth0"
-        className={styles.portHandle}
-      />
-      <span className={styles.portLabel} style={{ top: '-15px' }}>eth0</span>
+      {/* Dynamic Interface Handles - Centered and invisible for auto-negotiation */}
+      {data.interfaces.map((iface) => (
+        <Handle
+          key={iface.name}
+          type="source"
+          position={Position.Bottom} 
+          id={iface.name}
+          style={{ 
+            top: '50%', 
+            left: '50%', 
+            transform: 'translate(-50%, -50%)', 
+            opacity: 0,
+            pointerEvents: 'none'
+          }}
+        />
+      ))}
 
       <div className={styles.nodeIcon}>
         <CiscoPC />

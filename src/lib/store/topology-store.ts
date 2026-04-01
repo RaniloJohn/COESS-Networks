@@ -9,7 +9,7 @@ import {
   applyEdgeChanges, 
   applyNodeChanges,
 } from '@xyflow/react';
-import { DeviceNode, DeviceType, DeviceNodeData, createDefaultNodeData } from '../types/topology';
+import { DeviceNode, DeviceType, DeviceNodeData, createDefaultNodeData, CableType } from '../types/topology';
 import { calculateGlobalNetworkState } from '../engine/network-simulation';
 
 interface TopologyState {
@@ -40,6 +40,10 @@ interface TopologyState {
   
   // Simulation
   converge: () => void;
+  
+  // Cable State
+  activeCableType: CableType;
+  setCableType: (type: CableType) => void;
 }
 
 export const useTopologyStore = create<TopologyState>((set, get) => ({
@@ -53,15 +57,106 @@ export const useTopologyStore = create<TopologyState>((set, get) => ({
   },
 
   onEdgesChange: (changes) => {
+    const currentEdges = get().edges;
+    const currentNodes = get().nodes;
+    
+    // Handle interface cleanup when an edge is removed
+    const removedEdges = changes
+      .filter(c => c.type === 'remove')
+      .map(c => currentEdges.find(e => e.id === (c as any).id))
+      .filter(Boolean);
+
+    if (removedEdges.length > 0) {
+      const updatedNodes = [...currentNodes];
+      removedEdges.forEach(edge => {
+        if (!edge) return;
+        
+        // Reset source node interface
+        const sourceNode = updatedNodes.find(n => n.id === edge.source);
+        if (sourceNode) {
+          const data = sourceNode.data as unknown as DeviceNodeData;
+          const ifaces = data.interfaces.map(i => 
+            i.connectedEdgeId === edge.id ? { ...i, isUp: false, connectedEdgeId: undefined } : i
+          );
+          sourceNode.data = { ...data, interfaces: ifaces } as any;
+        }
+
+        // Reset target node interface
+        const targetNode = updatedNodes.find(n => n.id === edge.target);
+        if (targetNode) {
+          const data = targetNode.data as unknown as DeviceNodeData;
+          const ifaces = data.interfaces.map(i => 
+            i.connectedEdgeId === edge.id ? { ...i, isUp: false, connectedEdgeId: undefined } : i
+          );
+          targetNode.data = { ...data, interfaces: ifaces } as any;
+        }
+      });
+      
+      set({ nodes: updatedNodes });
+      // We don't trigger converge yet, it will be done after edges are applied
+    }
+
     set({
-      edges: applyEdgeChanges(changes, get().edges),
+      edges: applyEdgeChanges(changes, currentEdges),
     });
+    
+    if (removedEdges.length > 0) {
+      get().converge();
+    }
   },
 
-  onConnect: (connection) => {
-    set({
-      edges: addEdge(connection, get().edges),
+  onConnect: (params) => {
+    const { nodes, edges, activeCableType } = get();
+    
+    // 1. Find 1st available interface on source node
+    const sourceNode = nodes.find(n => n.id === params.source);
+    const sourceData = sourceNode?.data as unknown as DeviceNodeData;
+    const sourceIface = sourceData?.interfaces.find(i => !i.connectedEdgeId && i.name.toLowerCase().startsWith('fast') || i.name.toLowerCase().startsWith('ethernet'));
+    
+    // 2. Find 1st available interface on target node 
+    const targetNode = nodes.find(n => n.id === params.target);
+    const targetData = targetNode?.data as unknown as DeviceNodeData;
+    const targetIface = targetData?.interfaces.find(i => !i.connectedEdgeId && i.name.toLowerCase().startsWith('fast') || i.name.toLowerCase().startsWith('ethernet'));
+
+    if (!sourceIface || !targetIface) {
+      console.warn("No available interfaces for connection");
+      return;
+    }
+
+    const edgeId = `e-${params.source}-${params.target}-${Date.now()}`;
+    const connection: Connection = {
+      ...params,
+      sourceHandle: sourceIface.name,
+      targetHandle: targetIface.name,
+    };
+
+    // 3. Update nodes state with allocated interfaces
+    const updatedNodes = nodes.map(node => {
+      if (node.id === params.source) {
+        const data = node.data as unknown as DeviceNodeData;
+        const ifaces = data.interfaces.map(i => i.name === sourceIface.name ? { ...i, isUp: true, connectedEdgeId: edgeId } : i);
+        return { ...node, data: { ...data, interfaces: ifaces } };
+      }
+      if (node.id === params.target) {
+        const data = node.data as unknown as DeviceNodeData;
+        const ifaces = data.interfaces.map(i => i.name === targetIface.name ? { ...i, isUp: true, connectedEdgeId: edgeId } : i);
+        return { ...node, data: { ...data, interfaces: ifaces } };
+      }
+      return node;
     });
+
+    const newEdge: Edge = {
+      ...connection,
+      id: edgeId,
+      type: 'network', // Custom edge type
+      data: { cableType: activeCableType }
+    } as Edge;
+
+    set({ 
+      nodes: updatedNodes as unknown as Node[],
+      edges: addEdge(newEdge, edges) 
+    });
+    
     get().converge();
   },
 
@@ -177,4 +272,7 @@ export const useTopologyStore = create<TopologyState>((set, get) => ({
     const result = calculateGlobalNetworkState(nodes, edges);
     set({ nodes: result.updatedNodes });
   },
+
+  activeCableType: 'straight',
+  setCableType: (type) => set({ activeCableType: type }),
 }));

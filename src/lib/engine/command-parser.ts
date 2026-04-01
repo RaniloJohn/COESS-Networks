@@ -216,19 +216,7 @@ function executePCCommand(
   }
 
   if (cmd === 'ping') {
-    const target = tokens[1];
-    if (!target) return { output: 'Usage: ping <ip>', newState: state };
-    const nodes = useTopologyStore.getState().nodes;
-    const iface = interfaces[0];
-    if (!iface || !iface.ipAddress) return { output: 'Interface not configured.', newState: state };
-    
-    const path = findPacketPath(iface.ipAddress, target, nodes);
-    const last = path[path.length - 1];
-    
-    if (last && last.status === 'success') {
-      return { output: `Pinging ${target} with 32 bytes of data:\r\nReply from ${target}: bytes=32 time<1ms TTL=128\r\nReply from ${target}: bytes=32 time<1ms TTL=128\r\nReply from ${target}: bytes=32 time<1ms TTL=128\r\nReply from ${target}: bytes=32 time<1ms TTL=128\r\n\r\nPing statistics for ${target}:\r\n    Packets: Sent = 4, Received = 4, Lost = 0 (0% loss)`, newState: state };
-    }
-    return { output: `Pinging ${target} with 32 bytes of data:\r\nRequest timed out.\r\nRequest timed out.\r\nRequest timed out.\r\nRequest timed out.\r\n\r\nPing statistics for ${target}:\r\n    Packets: Sent = 4, Received = 0, Lost = 4 (100% loss)`, newState: state };
+    return handlePingCommand(tokens.slice(1), state, interfaces);
   }
 
   if (cmd === 'hostname') return { output: state.hostname, newState: state };
@@ -241,6 +229,7 @@ function executeUserMode(tokens: string[], state: CLIState, nodeData: DeviceNode
   const cmd = tokens[0].toLowerCase();
   if (cmd === 'enable') return { output: '', newState: { ...state, mode: 'priv' } };
   if (cmd === 'show') return handleShowCommand(tokens.slice(1), state, nodeData);
+  if (cmd === 'ping') return handlePingCommand(tokens.slice(1), state, nodeData.interfaces);
   if (cmd === 'exit') return { output: 'Logged out.', newState: state };
   return invalidInput(state);
 }
@@ -253,6 +242,7 @@ function executePrivMode(tokens: string[], state: CLIState, nodeData: DeviceNode
     }
   }
   if (cmd === 'show') return handleShowCommand(tokens.slice(1), state, nodeData);
+  if (cmd === 'ping') return handlePingCommand(tokens.slice(1), state, nodeData.interfaces);
   if (cmd === 'disable') return { output: '', newState: { ...state, mode: 'user' } };
   if (cmd === 'write') return { output: 'Building configuration...\r\n[OK]', newState: state };
   if (cmd === 'exit') return { output: '', newState: { ...state, mode: 'user' } };
@@ -351,6 +341,13 @@ function executeConfigIfMode(
       updateNodeData({ interfaces: newIfaces });
       return { output: '', newState: state };
     }
+  }
+
+  if (cmd === 'interface') {
+    const ifName = tokens.slice(1).join('');
+    const matched = findInterface(ifName, interfaces);
+    if (!matched) return { output: `% Invalid interface: ${ifName}`, newState: state };
+    return { output: '', newState: { ...state, mode: 'config-if', currentInterface: matched.name } };
   }
 
   if (cmd === 'exit') return { output: '', newState: { ...state, mode: 'config', currentInterface: null } };
@@ -500,6 +497,34 @@ function invalidInput(state: CLIState): CommandResult {
 
 function incompleteCommand(state: CLIState): CommandResult {
   return { output: '% Incomplete command.', newState: state };
+}
+
+function handlePingCommand(tokens: string[], state: CLIState, interfaces: NetworkInterface[]): CommandResult {
+  const target = tokens[0];
+  if (!target) return { output: state.mode === 'pc' ? 'Usage: ping <ip>' : '% Incomplete command.', newState: state };
+  
+  const nodes = useTopologyStore.getState().nodes;
+  
+  // Find a source IP. In IOS, it often uses the outgoing interface. 
+  // For our sim, we'll pick the first up interface with an IP.
+  const sourceIface = interfaces.find(i => i.isUp && i.ipAddress);
+  if (!sourceIface) return { output: state.mode === 'pc' ? 'Interface not configured.' : '% No source IP found.', newState: state };
+  
+  const path = findPacketPath(sourceIface.ipAddress, target, nodes);
+  const last = path[path.length - 1];
+  
+  if (state.mode === 'pc') {
+    if (last && last.status === 'success') {
+      return { output: `Pinging ${target} with 32 bytes of data:\r\nReply from ${target}: bytes=32 time<1ms TTL=128\r\nReply from ${target}: bytes=32 time<1ms TTL=128\r\nReply from ${target}: bytes=32 time<1ms TTL=128\r\nReply from ${target}: bytes=32 time<1ms TTL=128\r\n\r\nPing statistics for ${target}:\r\n    Packets: Sent = 4, Received = 4, Lost = 0 (0% loss)`, newState: state };
+    }
+    return { output: `Pinging ${target} with 32 bytes of data:\r\nRequest timed out.\r\nRequest timed out.\r\nRequest timed out.\r\nRequest timed out.\r\n\r\nPing statistics for ${target}:\r\n    Packets: Sent = 4, Received = 0, Lost = 4 (100% loss)`, newState: state };
+  } else {
+    // IOS Style Result
+    if (last && last.status === 'success') {
+      return { output: `Type escape sequence to abort.\r\nSending 5, 100-byte ICMP Echos to ${target}, timeout is 2 seconds:\r\n!!!!!\r\nSuccess rate is 100 percent (5/5), round-trip min/avg/max = 1/1/1 ms`, newState: state };
+    }
+    return { output: `Type escape sequence to abort.\r\nSending 5, 100-byte ICMP Echos to ${target}, timeout is 2 seconds:\r\n.....\r\nSuccess rate is 0 percent (0/5)`, newState: state };
+  }
 }
 
 function isValidIPv4(ip: string): boolean {

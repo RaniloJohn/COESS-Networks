@@ -20,6 +20,7 @@ import { SwitchNode } from '@/components/topology/nodes/SwitchNode';
 import { PCNode } from '@/components/topology/nodes/PCNode';
 import { DevicePalette } from '@/components/topology/DevicePalette';
 import { PropertiesPanel } from '@/components/topology/PropertiesPanel';
+import NetworkEdge from '@/components/topology/edges/NetworkEdge';
 import { useTopologyStore } from '@/lib/store/topology-store';
 import { DeviceType, TopologyData } from '@/lib/types/topology';
 import { Save, FolderOpen, Trash2, Loader2, MousePointer2, X, Layers } from 'lucide-react';
@@ -30,6 +31,10 @@ const nodeTypes = {
   router: RouterNode,
   switch: SwitchNode,
   pc: PCNode,
+};
+
+const edgeTypes = {
+  network: NetworkEdge,
 };
 
 function TopologyBuilder() {
@@ -140,6 +145,7 @@ function TopologyBuilder() {
         nodes={nodes}
         edges={edges}
         nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
         className={toolMode === 'delete' ? 'delete-mode' : ''}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}

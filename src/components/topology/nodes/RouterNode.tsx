@@ -13,23 +13,22 @@ interface RouterNodeProps {
 export function RouterNode({ data, selected }: RouterNodeProps) {
   return (
     <div className={`${styles.nodeBase} ${styles.router} ${selected ? styles.selected : ''}`}>
-      {/* Fa0/0 Handle (Left) */}
-      <Handle
-        type="target"
-        position={Position.Left}
-        id="fa0/0"
-        className={styles.portHandle}
-      />
-      <span className={styles.portLabel} style={{ left: '-25px' }}>Fa0/0</span>
-
-      {/* Fa0/1 Handle (Right) */}
-      <Handle
-        type="source"
-        position={Position.Right}
-        id="fa0/1"
-        className={styles.portHandle}
-      />
-      <span className={styles.portLabel} style={{ right: '-25px' }}>Fa0/1</span>
+      {/* Dynamic Interface Handles - Centered and invisible for auto-negotiation */}
+      {data.interfaces.map((iface) => (
+        <Handle
+          key={iface.name}
+          type="source"
+          position={Position.Bottom} // Positioned at bottom but styled centrally
+          id={iface.name}
+          style={{ 
+            top: '50%', 
+            left: '50%', 
+            transform: 'translate(-50%, -50%)', 
+            opacity: 0,
+            pointerEvents: 'none'
+          }}
+        />
+      ))}
 
       <div className={styles.nodeIcon}>
         <CiscoRouter />

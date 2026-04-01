@@ -98,27 +98,35 @@ export function PropertiesPanel() {
                     <div className={styles.statusIndicator} style={{ background: iface.isUp ? 'var(--accent-green)' : 'var(--text-tertiary)' }} />
                   </div>
                   
-                  <div className={styles.propGroup}>
-                    <label style={{ fontSize: '10px' }}>IP Address</label>
-                    <input 
-                      type="text" 
-                      placeholder="e.g. 192.168.1.1"
-                      value={iface.ipAddress}
-                      onChange={(e) => handleInterfaceChange(idx, 'ipAddress', e.target.value)}
-                      className={styles.inputSmall}
-                    />
-                  </div>
+                  {type === 'switch' && !iface.name.toLowerCase().includes('vlan') ? (
+                    <div className={styles.l2Message}>
+                      Layer 2 Interface - Assign IP via CLI SVI (VLAN)
+                    </div>
+                  ) : (
+                    <>
+                      <div className={styles.propGroup}>
+                        <label style={{ fontSize: '10px' }}>IP Address</label>
+                        <input 
+                          type="text" 
+                          placeholder="e.g. 192.168.1.1"
+                          value={iface.ipAddress}
+                          onChange={(e) => handleInterfaceChange(idx, 'ipAddress', e.target.value)}
+                          className={styles.inputSmall}
+                        />
+                      </div>
 
-                  <div className={styles.propGroup}>
-                    <label style={{ fontSize: '10px' }}>Subnet Mask</label>
-                    <input 
-                      type="text" 
-                      placeholder="e.g. 255.255.255.0"
-                      value={iface.subnetMask}
-                      onChange={(e) => handleInterfaceChange(idx, 'subnetMask', e.target.value)}
-                      className={styles.inputSmall}
-                    />
-                  </div>
+                      <div className={styles.propGroup}>
+                        <label style={{ fontSize: '10px' }}>Subnet Mask</label>
+                        <input 
+                          type="text" 
+                          placeholder="e.g. 255.255.255.0"
+                          value={iface.subnetMask}
+                          onChange={(e) => handleInterfaceChange(idx, 'subnetMask', e.target.value)}
+                          className={styles.inputSmall}
+                        />
+                      </div>
+                    </>
+                  )}
                 </div>
               ))}
             </div>

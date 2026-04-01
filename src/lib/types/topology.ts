@@ -7,6 +7,9 @@ import { z } from 'zod';
 /** Device types available in the topology builder */
 export type DeviceType = 'router' | 'switch' | 'pc' | 'server';
 
+/** Cable types for network connections */
+export type CableType = 'straight' | 'crossover' | 'serial';
+
 /** Network interface on a device */
 export interface NetworkInterface {
   name: string;
