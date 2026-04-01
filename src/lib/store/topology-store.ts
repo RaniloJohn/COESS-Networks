@@ -108,18 +108,36 @@ export const useTopologyStore = create<TopologyState>((set, get) => ({
   onConnect: (params) => {
     const { nodes, edges, activeCableType } = get();
     
-    // 1. Find 1st available interface on source node
+    // 1. Helper to find available interface based on cable type
+    const isSerialCable = activeCableType === 'serial';
+    const findAvailableInterface = (data: DeviceNodeData | undefined) => {
+      if (!data) return undefined;
+      return data.interfaces.find(i => {
+        // Must be unassigned
+        if (i.connectedEdgeId) return false;
+        
+        const name = i.name.toLowerCase();
+        if (isSerialCable) {
+          // Serial cables ONLY fit into Serial interfaces
+          return name.startsWith('serial');
+        } else {
+          // Ethernet cables fit into Fast, Gigabit, or Ethernet
+          return name.startsWith('fast') || name.startsWith('gigabit') || name.startsWith('ethernet');
+        }
+      });
+    };
+
     const sourceNode = nodes.find(n => n.id === params.source);
     const sourceData = sourceNode?.data as unknown as DeviceNodeData;
-    const sourceIface = sourceData?.interfaces.find(i => !i.connectedEdgeId && i.name.toLowerCase().startsWith('fast') || i.name.toLowerCase().startsWith('ethernet'));
+    const sourceIface = findAvailableInterface(sourceData);
     
-    // 2. Find 1st available interface on target node 
+    // 2. Find available interface on target node 
     const targetNode = nodes.find(n => n.id === params.target);
     const targetData = targetNode?.data as unknown as DeviceNodeData;
-    const targetIface = targetData?.interfaces.find(i => !i.connectedEdgeId && i.name.toLowerCase().startsWith('fast') || i.name.toLowerCase().startsWith('ethernet'));
+    const targetIface = findAvailableInterface(targetData);
 
     if (!sourceIface || !targetIface) {
-      console.warn("No available interfaces for connection");
+      console.warn("No available interfaces matching the cable type for connection");
       return;
     }
 

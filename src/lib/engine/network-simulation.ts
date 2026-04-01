@@ -200,15 +200,18 @@ function getNeighbors(nodeId: string, nodes: Node[], edges: Edge[]) {
     const localData = localNode?.data as unknown as DeviceNodeData;
     const neighborData = neighborNode.data as unknown as DeviceNodeData;
 
-    const localIface = localData.interfaces?.find(i => i.isUp);
-    const remoteIface = neighborData.interfaces?.find(i => i.isUp);
+    // Use edge-aware interface lookup to find specifically connected ports
+    const localIface = localData.interfaces?.find(i => i.connectedEdgeId === edge.id && i.isUp);
+    const remoteIface = neighborData.interfaces?.find(i => i.connectedEdgeId === edge.id && i.isUp);
+
+    if (!localIface || !remoteIface) return null;
 
     return {
       node: neighborNode,
       interface: {
-        localName: localIface?.name || '',
-        localIp: localIface?.ipAddress || '',
-        remoteIp: remoteIface?.ipAddress || '',
+        localName: localIface.name,
+        localIp: localIface.ipAddress || '',
+        remoteIp: remoteIface.ipAddress || '',
       }
     };
   }).filter((n): n is NonNullable<typeof n> => n !== null);
