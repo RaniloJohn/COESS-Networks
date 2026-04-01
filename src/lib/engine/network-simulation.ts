@@ -63,7 +63,7 @@ export function calculateGlobalNetworkState(nodes: Node[], edges: Edge[]): Simul
         neighborRoutes.forEach(nRoute => {
           // RIP Propagation
           if (data.rip?.enabled && neighborData.rip?.enabled && data.rip.version === neighborData.rip.version) {
-            if (neighborData.rip.networks.some(net => isNetworkInSubnet(nRoute.network, net))) {
+            if (neighborData.rip.networks.some(net => isIpInSubnet(nRoute.network, net, nRoute.mask))) {
               const ripRoute: RoutingEntry = {
                 ...nRoute,
                 type: 'R',
@@ -79,7 +79,7 @@ export function calculateGlobalNetworkState(nodes: Node[], edges: Edge[]): Simul
           // OSPF Propagation
           if (data.ospf?.enabled && neighborData.ospf?.enabled && data.ospf.processId === neighborData.ospf.processId) {
              // Basic check: share common subnet for adjacency
-             if (data.ospf.networks.some(on => isNetworkInSubnet(neighbor.interface.localIp, on.network))) {
+             if (data.ospf.networks.some(on => isIpInSubnet(neighbor.interface.localIp, on.network, on.wildcardMask ? prefixToMask(32 - maskToPrefix(on.wildcardMask)) : '255.255.255.0'))) {
                 const ospfRoute: RoutingEntry = {
                   ...nRoute,
                   type: 'O',
@@ -144,15 +144,27 @@ export function findPacketPath(srcIp: string, dstIp: string, nodes: Node[]): Hop
     const localInt = (data.interfaces || []).find(i => {
       const addr = i.ipAddress;
       const mask = i.subnetMask;
-      return addr && mask && isNetworkInSubnet(dstIp, getNetworkAddress(addr, mask));
+      return addr && mask && isIpInSubnet(dstIp, addr, mask);
     });
+
     if (localInt) {
+       // NEW: Target Verification (Simulating ARP failure for ghost IPs)
+       const targetExists = nodes.some(n => 
+         (n.data as unknown as DeviceNodeData).interfaces?.some(i => i.ipAddress === dstIp && i.isUp)
+       );
+
+       if (!targetExists) {
+         // The router is connected to the right subnet, but the destination device doesn't physically exist
+         path.push({ nodeId: currentNode.id, interfaceName: localInt.name, status: 'timeout', reason: 'Host Unreachable' });
+         return path;
+       }
+
        path.push({ nodeId: currentNode.id, interfaceName: localInt.name, status: 'success' });
        return path;
     }
 
     // Routing Lookup
-    const route = (data.routingTable || []).find(r => isNetworkInSubnet(dstIp, r.network));
+    const route = (data.routingTable || []).find(r => isIpInSubnet(dstIp, r.network, r.mask));
     if (!route) {
        path.push({ nodeId: currentNode.id, interfaceName: 'gateway', status: 'failure', reason: 'No route to host' });
        return path;
@@ -183,9 +195,19 @@ function getNetworkAddress(ip: string, mask: string): string {
   return ipParts.map((p, i) => p & maskParts[i]).join('.');
 }
 
-function isNetworkInSubnet(ip: string, network: string): boolean {
-  return ip.startsWith(network.split('.').slice(0, 3).join('.'));
+function isIpInSubnet(ip: string, networkAddr: string, mask: string): boolean {
+  if (!ip || !networkAddr || !mask) return false;
+  const ipParts = ip.split('.').map(Number);
+  const netParts = networkAddr.split('.').map(Number);
+  const maskParts = mask.split('.').map(Number);
+  
+  if (ipParts.length !== 4 || netParts.length !== 4 || maskParts.length !== 4) return false;
+  
+  return ipParts.every((p, i) => (p & maskParts[i]) === (netParts[i] & maskParts[i]));
 }
+
+// Keep the utility imports for OSPF conversion if needed, but we'll stick to robust local logic for now
+import { prefixToMask, maskToPrefix } from './ip-math';
 
 function getNeighbors(nodeId: string, nodes: Node[], edges: Edge[]) {
   const nodeEdges = edges.filter(e => e.source === nodeId || e.target === nodeId);
