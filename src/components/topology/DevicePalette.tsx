@@ -19,7 +19,7 @@ const cables: { type: CableType, label: string, icon: any }[] = [
 ];
 
 export function DevicePalette() {
-  const { activeCableType, setCableType } = useTopologyStore();
+  const { activeCableType, setCableType, toolMode } = useTopologyStore();
 
   const onDragStart = (event: React.DragEvent, nodeType: string) => {
     event.dataTransfer.setData('application/reactflow', nodeType);
@@ -55,7 +55,7 @@ export function DevicePalette() {
           {cables.map((cable) => (
             <div
               key={cable.type}
-              className={`${styles.paletteItemHorizontal} ${activeCableType === cable.type ? styles.activeCable : ''}`}
+              className={`${styles.paletteItemHorizontal} ${(toolMode === 'cable' && activeCableType === cable.type) ? styles.activeCable : ''}`}
               onClick={() => setCableType(cable.type)}
             >
               <div className={`${styles.paletteIcon} ${styles.cableIcon}`}>

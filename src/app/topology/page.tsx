@@ -129,7 +129,29 @@ function TopologyBuilder() {
     addDevice(type, position);
   }, [screenToFlowPosition, addDevice]);
 
-  // ── Layout Tweak ──
+  // ── UX Hardening: Keyboard & Mouse Shortcuts ──
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setToolMode('select');
+      }
+      if (e.key === 'v' || e.key === 'V') {
+        setToolMode('select');
+      }
+      if (e.key === 'd' || e.key === 'D') {
+        setToolMode('delete');
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [setToolMode]);
+
+  const onPaneContextMenu = useCallback((event: React.MouseEvent) => {
+    event.preventDefault();
+    setToolMode('select');
+  }, [setToolMode]);
+
   useEffect(() => {
     const mainContent = document.querySelector('.main-content');
     if (mainContent) mainContent.classList.add('wide');
@@ -140,13 +162,12 @@ function TopologyBuilder() {
   }, []);
 
   return (
-    <div className={styles.wrapper} ref={reactFlowWrapper}>
+    <div className={`${styles.wrapper} ${toolMode === 'cable' ? styles.cableMode : ''} ${toolMode === 'delete' ? styles.deleteMode : ''}`} ref={reactFlowWrapper}>
       <ReactFlow
         nodes={nodes}
         edges={edges}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
-        className={toolMode === 'delete' ? 'delete-mode' : ''}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}

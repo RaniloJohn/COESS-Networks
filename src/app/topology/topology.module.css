@@ -588,6 +588,14 @@
 }
 
 /* ── Cursor States ── */
+.cableMode :global(.react-flow__pane) {
+  cursor: crosshair !important;
+}
+
+.deleteMode :global(.react-flow__pane) {
+  cursor: crosshair !important;
+}
+
 :global(.react-flow__pane.delete-mode) {
   cursor: crosshair !important;
 }

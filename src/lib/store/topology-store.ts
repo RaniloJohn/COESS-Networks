@@ -35,8 +35,8 @@ interface TopologyState {
   deleteSelected: () => void;
   
   // View State
-  toolMode: 'select' | 'delete';
-  setToolMode: (mode: 'select' | 'delete') => void;
+  toolMode: 'select' | 'delete' | 'cable';
+  setToolMode: (mode: 'select' | 'delete' | 'cable') => void;
   
   // Simulation
   converge: () => void;
@@ -274,5 +274,8 @@ export const useTopologyStore = create<TopologyState>((set, get) => ({
   },
 
   activeCableType: 'straight',
-  setCableType: (type) => set({ activeCableType: type }),
+  setCableType: (type) => set({ 
+    activeCableType: type,
+    toolMode: 'cable' 
+  }),
 }));
